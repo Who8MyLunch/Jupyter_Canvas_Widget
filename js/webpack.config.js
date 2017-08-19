@@ -20,7 +20,7 @@ module.exports = [
         entry: './lib/extension.js',
         output: {
             filename: 'extension.js',
-            path: path.resolve(__dirname, '..', 'Jupyter_Canvas_Widget', 'static'),
+            path: path.resolve(__dirname, '..', 'jpy_canvas', 'static'),
             libraryTarget: 'amd'
         }
     },
@@ -33,7 +33,7 @@ module.exports = [
         entry: './lib/index.js',
         output: {
             filename: 'index.js',
-            path: path.resolve(__dirname, '..', 'Jupyter_Canvas_Widget', 'static'),
+            path: path.resolve(__dirname, '..', 'jpy_canvas', 'static'),
             libraryTarget: 'amd'
         },
         devtool: 'source-map',
