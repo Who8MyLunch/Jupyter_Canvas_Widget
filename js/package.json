@@ -1,0 +1,37 @@
+{
+  "name": "jupyter-canvas",
+  "version": "0.1.0",
+  "description": "HTML5 canvas-based image widget",
+  "author": "Pierre V. Villeneuve",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/who8mylunch/Jupyter_Canvas_Widget.git"
+  },
+  "keywords": [
+    "jupyter",
+    "widgets",
+    "ipython",
+    "ipywidgets",
+    "html5",
+    "canvas"
+  ],
+  "files": [
+    "lib/**/*.js",
+    "dist/*.js"
+  ],
+  "scripts": {
+    "clean": "rimraf dist/",
+    "prepublish": "webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "webpack": "^3.5.5",
+    "rimraf": "^2.6.1"
+  },
+  "dependencies": {
+    "@jupyter-widgets/base": "^1.0.0",
+    "lodash": "^4.17.4"
+  }
+}
