@@ -1,5 +1,9 @@
+image_attendant
 ipython
+ipywidgets
 jupyter
 notebook
-ipywidgets
+numpy
 ordered-namespace
+pillow
+requests

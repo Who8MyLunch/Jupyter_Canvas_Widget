@@ -40,7 +40,8 @@ module.exports = [
         module: {
             rules: rules
         },
-        externals: ['@jupyter-widgets/base']
+        externals: ['@jupyter-widgets/base',
+                    '@jupyter-widgets/controls']
     },
     {// Embeddable jupyter-canvas bundle
      //
@@ -67,6 +68,7 @@ module.exports = [
         module: {
             rules: rules
         },
-        externals: ['@jupyter-widgets/base']
+        externals: ['@jupyter-widgets/base',
+                    '@jupyter-widgets/controls']
     }
 ];

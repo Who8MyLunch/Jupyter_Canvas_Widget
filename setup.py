@@ -51,6 +51,7 @@ def js_prerelease(command, strict=False):
             update_package_data(self.distribution)
     return DecoratedCommand
 
+
 def update_package_data(distribution):
     """update package_data to catch changes during setup
     """
@@ -58,6 +59,7 @@ def update_package_data(distribution):
     # distribution.package_data = find_package_data()
     # re-init build_py options which load package_data
     build_py.finalize_options()
+
 
 
 class NPM(Command):
@@ -122,9 +124,11 @@ class NPM(Command):
         # update package data in case this created new files
         update_package_data(self.distribution)
 
+
 version_ns = {}
 with open(os.path.join(here, 'jpy_canvas', '_version.py')) as f:
     exec(f.read(), {}, version_ns)
+
 
 setup_args = {
     'name': 'Jupyter_Canvas_Widget',
