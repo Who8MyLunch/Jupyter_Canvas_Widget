@@ -1,8 +1,18 @@
 # Jupyter_Canvas_Widget
 
-The goal of this project is sdfdsfdsfdsf .
+**This is very much a work in progress!**
 
-sdf.
+
+The plan is to leverage Javascript support for binary data instead of encode-64.  No more data
+URL goofy stuff.
+
+This will ultimately allow for sending image differences from backend to frontend, and operating as
+a self-contained video player.  But that's all for later.
+
+In the near-term I simply want a robust tool for displaying images from numpy data arrays.
+
+
+
 
 # Installation
 

@@ -23,6 +23,8 @@ class Canvas(ipywidgets.DOMWidget):
     # Private information
     _data_compressed = traitlets.Bytes(help='Compressed image data').tag(sync=True)
     _format = traitlets.Unicode().tag(sync=True)
+    _width = CUnicode(help="Width of the image in pixels.").tag(sync=True)
+    _height = CUnicode(help="Width of the image in pixels.").tag(sync=True)
     # _event = traitlets.Dict().tag(sync=True)
 
     # Public information
@@ -48,9 +50,10 @@ class Canvas(ipywidgets.DOMWidget):
         """
         super().__init__()
 
+        self._url = ''
         self._data = None
-        self._quality = quality
         self._format = format
+        self.quality = quality
 
         if url:
             self.url = url
@@ -78,11 +81,23 @@ class Canvas(ipywidgets.DOMWidget):
     @data.setter
     def data(self, value):
         self._data = value
-        self._data_compressed = imat.compress(self._data, self._format, quality=self.quality)
+
+        with self.hold_sync:
+            self._height = self.height
+            self._width = self.width
+            self._data_compressed = imat.compress(self._data, self._format, quality=self.quality)
 
     @property
     def shape(self):
         return self.data.shape
+
+    @property
+    def height(self):
+        return self.data.shape[0]
+
+    @property
+    def width(self):
+        return self.data.shape[1]
 
 #------------------------------------------------
 
