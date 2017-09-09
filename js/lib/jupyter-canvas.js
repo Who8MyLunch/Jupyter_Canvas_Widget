@@ -1,6 +1,7 @@
 var widgets = require('@jupyter-widgets/base');
 var _ = require('lodash');
 
+var version = require('../package.json').version;
 
 // Custom Model. Custom widgets models must at least provide default values
 // for model attributes when different from the base class.
@@ -20,11 +21,11 @@ var CanvasModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
         _model_name:           'CanvasModel',
         _model_module:         'jupyter-canvas',
-        _model_module_version: '0.1.0',
+        _model_module_version:  version,
 
         _view_name:            'CanvasView',
         _view_module:          'jupyter-canvas',
-        _view_module_version:  '0.1.0',
+        _view_module_version:   version,
     })
 });
 
@@ -46,6 +47,17 @@ var CanvasView = widgets.DOMWidgetView.extend({
         // https://coderwall.com/p/fpxt4w/using-backbone-s-new-listento
         this.listenTo(this.model, 'change:_data_compressed', this.update_data);
 
+        // Prevent page from scrolling with mouse wheel events over canvas
+        this.canvas.onwheel = function(event) {
+            event.preventDefault();
+        };
+
+        // Prevent context menu popup from right-click on canvas
+        this.canvas.oncontextmenu = function(event) {
+            event.preventDefault();
+        };
+
+        this.updat();   // need this?
         this.update_data();
     },
 

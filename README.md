@@ -69,21 +69,24 @@ jupyter nbextension enable --py --sys-prefix widgetsnbextension
 
 ## Standard Install
 
-    $ pip install Jupyter-Canvas-Widget
-    $ jupyter nbextension enable --py --sys-prefix jpy_canvas
+```bash
+pip install Jupyter-Canvas-Widget
+jupyter nbextension enable --py --sys-prefix jpy_canvas
+```
 
 ## Developer Install
 
 This requires npm.
 
-    $ git clone https://github.com/who8mylunch/Jupyter_Canvas_Widget.git
-    $ cd Jupyter_Canvas_Widget
+```bash
+git clone https://github.com/who8mylunch/Jupyter_Canvas_Widget.git
+cd Jupyter_Canvas_Widget
 
-    $ pip install -e .
+pip install -e .
 
-    $ jupyter nbextension install --py --symlink --sys-prefix jpy_canvas
-    $ jupyter nbextension enable --py            --sys-prefix jpy_canvas
-
+jupyter nbextension install --py --symlink --sys-prefix jpy_canvas
+jupyter nbextension enable --py            --sys-prefix jpy_canvas
+```
 
 # Making Changes to JavaScript Code
 
