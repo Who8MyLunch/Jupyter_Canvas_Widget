@@ -22,9 +22,9 @@ class Canvas(ipywidgets.DOMWidget):
 
     # Private information
     _data_compressed = traitlets.Bytes(help='Compressed image data').tag(sync=True)
-    _format = traitlets.Unicode().tag(sync=True)
-    _width = CUnicode(help="Width of the image in pixels.").tag(sync=True)
-    _height = CUnicode(help="Width of the image in pixels.").tag(sync=True)
+    _format = traitlets.Unicode(help='Encoding format, e.g. PNG or JPEG').tag(sync=True)
+    _width = CUnicode(help='Width of the image in pixels').tag(sync=True)
+    _height = CUnicode(help='Height of the image in pixels').tag(sync=True)
     # _event = traitlets.Dict().tag(sync=True)
 
     # Public information
@@ -67,7 +67,16 @@ class Canvas(ipywidgets.DOMWidget):
     @url.setter
     def url(self, value):
         self._url = value
-        self._data_compressed, self._format = imat.download(self._url)
+        self._data = None
+
+        with self.hold_sync:
+            self._width = 0
+            self._height = 0
+            self._data_compressed, self._format = imat.download(self._url)
+
+        # note: this method does not yet capture the image width and height.
+        # hopefully I'll be able to determine that at frontend and propagate
+        # back here...?
 
     @property
     def data(self):

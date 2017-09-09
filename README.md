@@ -9,7 +9,50 @@ URL goofy stuff.
 This will ultimately allow for sending image differences from backend to frontend, and operating as
 a self-contained video player.  But that's all for later.
 
-In the near-term I simply want a robust tool for displaying images from numpy data arrays.
+In the near-term I simply want a robust tool for displaying images from numpy data arrays.  This
+will require the following functionality:
+- Accept data from user at backend
+- Compress the data
+- Store data in binary form in an Attribute that syncs to the front end via Widget's internal
+  framework.  Traitlets.Bytes().
+
+- At the frontend I'll need to create the following objects for internal use: Canvas, 2D Context,
+- Handle binary data at frontend using Typed Array buffers and views:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays
+  ImageData?, ImageBitmap??
+- Which to use: ImageData or ImageBitmap??  I think ImageBitmap, look here: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap
+
+- Transfer bytes to a Blob.  Then instantiate an ImageBitmap using 2d context.  Then move/copy image
+  data into canvas.  Finally set width and height.
+
+
+- Width and height require special consideration.  Overall displayed image size is defined by CSS.
+  This is independent of actual numbers of pixels.  Canvas itself has a width and height, measured in
+  pixels. The image data has its own size of course.
+
+- Size stuff gets complicated once I start allowing for zooming.  Is that something to handle via CSS?
+  Via Canvas size?
+
+- Canvas also supports arbitrary affine transforms applied to image.  This cold be useful to handle
+  zooming or rotations.  Once I go this far I would need to separate the window size from the
+  data size.  I don't really want to go down that route just yet, but one in the future I might
+  want that option.  I should simply focus on implementing basic features, and just be aware about
+  not painting myself into a corner in the early stages.
+
+
+Here's my plan:
+
+- Python:
+    - Accept image data via Python
+    - Compress as PNG or JPEG and store in Traitlets.Bytes object
+    - Also store image width and height
+    - Define Dict structure for receiving mouse (and keyboard?) event data from the front end
+
+- JavaScript:
+    - Define Canvas element
+    - Instantiate 2D Context
+    - Event handler to transfer compressed image data to ImageBitmap, and then draw image to
+      canvas
 
 
 
