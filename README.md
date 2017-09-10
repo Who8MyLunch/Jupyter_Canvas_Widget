@@ -40,20 +40,11 @@ will require the following functionality:
   not painting myself into a corner in the early stages.
 
 
-Here's my plan:
+# To Do
 
-- Python:
-    - Accept image data via Python
-    - Compress as PNG or JPEG and store in Traitlets.Bytes object
-    - Also store image width and height
-    - Define Dict structure for receiving mouse (and keyboard?) event data from the front end
+So far so good!
 
-- JavaScript:
-    - Define Canvas element
-    - Instantiate 2D Context
-    - Event handler to transfer compressed image data to ImageBitmap, and then draw image to
-      canvas
-
+Next up is to add support for zoom scale factor, including options for rendering (pixelated, etc)
 
 
 

@@ -18,6 +18,7 @@ var CanvasModel = widgets.DOMWidgetModel.extend({
         _view_module:          'jupyter-canvas',
         _view_module_version:   version,
 
+        _type:                 '',
         _data_compressed:       new Uint8Array(0),
     })
 });
@@ -35,15 +36,7 @@ var CanvasView = widgets.DOMWidgetView.extend({
         var kind = '2d'  // 'webgl'   !!!!!
         this.ctx = this.canvas.getContext(kind);
 
-        // Internal image object to render new image src data.  This object is later
-        // used as source data argument to the canvas' own `drawImage()` method.
-        // this.imageWork = new Image();
-        // this.imageWork.onload = function() {
-        //     this.draw();
-        // }.bind(this);
-
         // .listenTo() is better than .on()
-        // http://backbonejs.org/#Events-listenTo
         // https://coderwall.com/p/fpxt4w/using-backbone-s-new-listento
         this.listenTo(this.model, 'change:_data_compressed', this.update_data);
 
@@ -66,7 +59,6 @@ var CanvasView = widgets.DOMWidgetView.extend({
         var options = {'type': this.model.get('_type')};
         var blob = new Blob([this.model.get('_data_compressed')], options);
 
-        // Specifies an image scaling algorithm. One of pixelated, low (default), medium, or high
         var promise = createImageBitmap(blob);
         promise.then(this.draw.bind(this));
     },
