@@ -2,9 +2,9 @@
 
 **This is very much a work in progress!**
 
-There already exists a Jupyter Image Widget that works just fine, so make another one?  The image
-widget that provided by [ipywidgets]() takes of the tricky work involving transfering compressed
-image data from the backend to the frontend.  But it leaves it to the using to handle converting an
+There already exists a Jupyter Image Widget ([ipywidgets](https://github.com/jupyter-widgets/ipywidgets)),
+so make another one?  That widget takes care of the tricky work involving transfering compressed
+image data from the backend to the frontend.  But it leaves it to the user to handle converting an
 array of image data into a sequence of compressed image bytes.  It also doesn't readily support
 mouse events via Python callback functions.
 
@@ -24,7 +24,6 @@ Python callback functions.
   independent of source data size
 - Leverage Jupyter ipywidgets native support for transfering binary data between backend and
   frontend (no more encode-64)
--
 
 # Work-in-Progress
 
