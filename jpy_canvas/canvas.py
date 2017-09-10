@@ -9,7 +9,7 @@ from ._version import __version__
 
 @ipywidgets.register
 class Canvas(ipywidgets.DOMWidget):
-    """An example widget
+    """HTML5 canvas-based image widget
     """
     # Widget information
     _view_name = traitlets.Unicode('CanvasView').tag(sync=True)
@@ -22,7 +22,7 @@ class Canvas(ipywidgets.DOMWidget):
 
     # Private information
     _data_compressed = traitlets.Bytes(help='Compressed image data').tag(sync=True)
-    _format = traitlets.Unicode(help='Encoding format, e.g. PNG or JPEG').tag(sync=True)
+    _type = traitlets.Unicode(help='Encoding format, e.g. PNG or JPEG').tag(sync=True)
     # _width = CUnicode(help='Width of the image in pixels').tag(sync=True)
     # _height = CUnicode(help='Height of the image in pixels').tag(sync=True)
     # _event = traitlets.Dict().tag(sync=True)
@@ -42,23 +42,34 @@ class Canvas(ipywidgets.DOMWidget):
             (rows, columns, 3) - RGB
             (rows, columns, 4) - RGBA
 
-        If data type is neither of np.uint8 or np.int16, it will be cast to uint8 by scaling
-        min(data) -> 0 and max(data) -> 255.
+        If data type is neither of np.uint8 or np.int16, it will be cast to uint8 by
+        scaling min(data) -> 0 and max(data) -> 255.
 
-        If you supply a URL that points to an image then that image will be fetched and stored
-        locally as a uint8 byte array.
+        If you supply a URL that points to an image then that image will be fetched
+        and stored locally as a uint8 byte array.
         """
         super().__init__()
 
         self._url = ''
         self._data = None
-        self._format = format
+        self._format = None
+
+        self.format = format
         self.quality = quality
 
         if url:
             self.url = url
         elif data is not None:
             self.data = data
+
+    @property
+    def format(self):
+        return self._format
+
+    @format.setter
+    def format(self, value):
+        self._format = value
+        self._type = 'image/{}'.format(self._format)
 
     @property
     def url(self):
@@ -91,10 +102,7 @@ class Canvas(ipywidgets.DOMWidget):
     def data(self, value):
         self._data = value
 
-        with self.hold_sync:
-            # self._height = self.height
-            # self._width = self.width
-            self._data_compressed = imat.compress(self._data, self._format, quality=self.quality)
+        self._data_compressed = imat.compress(self._data, self._format, quality=self.quality)
 
     @property
     def shape(self):

@@ -146,7 +146,7 @@ setup_args = {
             'jpy_canvas/static/index.js.map',
         ]),
     ],
-    'install_requires': ['ipywidgets>=7.0.0', 'image_attendant'],
+    'install_requires': ['ipywidgets>=7.0.0', 'image_attendant', 'numpy'],
     'packages': find_packages(),
     'zip_safe': False,
     'cmdclass': {

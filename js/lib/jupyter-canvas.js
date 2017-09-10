@@ -3,17 +3,8 @@ var _ = require('lodash');
 
 var version = require('../package.json').version;
 
-// Custom Model. Custom widgets models must at least provide default values
-// for model attributes when different from the base class.
-//
-//  - `_view_name`
-//  - `_view_module`
-//  - `_view_module_version`
-//
-//  - `_model_name`
-//  - `_model_module`
-//  - `_model_module_version`
-//
+
+//-----------------------------------------------
 
 // When serialiazing the entire widget state for embedding, only values that
 // differ from the defaults will be specified.
@@ -26,6 +17,8 @@ var CanvasModel = widgets.DOMWidgetModel.extend({
         _view_name:            'CanvasView',
         _view_module:          'jupyter-canvas',
         _view_module_version:   version,
+
+        _data_compressed:       new Uint8Array(0),
     })
 });
 
@@ -42,44 +35,47 @@ var CanvasView = widgets.DOMWidgetView.extend({
         var kind = '2d'  // 'webgl'   !!!!!
         this.ctx = this.canvas.getContext(kind);
 
+        // Internal image object to render new image src data.  This object is later
+        // used as source data argument to the canvas' own `drawImage()` method.
+        // this.imageWork = new Image();
+        // this.imageWork.onload = function() {
+        //     this.draw();
+        // }.bind(this);
+
         // .listenTo() is better than .on()
         // http://backbonejs.org/#Events-listenTo
         // https://coderwall.com/p/fpxt4w/using-backbone-s-new-listento
         this.listenTo(this.model, 'change:_data_compressed', this.update_data);
 
         // Prevent page from scrolling with mouse wheel events over canvas
-        this.canvas.onwheel = function(event) {
-            event.preventDefault();
+        this.canvas.onwheel = function(ev) {
+            ev.preventDefault();
         };
 
         // Prevent context menu popup from right-click on canvas
-        this.canvas.oncontextmenu = function(event) {
-            event.preventDefault();
+        this.canvas.oncontextmenu = function(ev) {
+            ev.preventDefault();
         };
 
-        this.updat();   // need this?
+        this.update();
         this.update_data();
     },
 
-
     update_data: function() {
-        // Update image data
-        var options;
-
         // https://developer.mozilla.org/en-US/docs/Web/API/Blob
-        options = {type: `image/${this.model.get('_format')}`};
-        var blob = new Blob([this.model.get('_compressed_data')], options);
+        var options = {'type': this.model.get('_type')};
+        var blob = new Blob([this.model.get('_data_compressed')], options);
 
         // Specifies an image scaling algorithm. One of pixelated, low (default), medium, or high
-        options = {resizeQuality: 'high'};
-        var image = createImageBitmap(blob, options);
+        var promise = createImageBitmap(blob);
+        promise.then(this.draw.bind(this));
+    },
 
-        // Draw the image
+    draw: function(image) {
+        this.canvas.width = image.width;
+        this.canvas.height = image.height;
+
         this.ctx.drawImage(image, 0, 0);
-
-        // Set CSS width and height
-        this.el.setAttribute('width', image.width);
-        this.el.setAttribute('height', image.height);
     }
 });
 
