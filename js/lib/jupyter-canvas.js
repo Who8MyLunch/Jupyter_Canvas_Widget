@@ -6,8 +6,7 @@ var version = require('../package.json').version;
 
 //-----------------------------------------------
 
-// When serialiazing the entire widget state for embedding, only values that
-// differ from the defaults will be specified.
+// The Model manages widget's state information
 var CanvasModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
         _model_name:           'CanvasModel',
@@ -25,7 +24,7 @@ var CanvasModel = widgets.DOMWidgetModel.extend({
 
 //-----------------------------------------------
 
-// Custom View. Renders the widget model.
+// The View renders the widget model
 var CanvasView = widgets.DOMWidgetView.extend({
     render: function() {
         // This project's view is a single <canvas/> element.
@@ -70,7 +69,6 @@ var CanvasView = widgets.DOMWidgetView.extend({
         this.ctx.drawImage(image, 0, 0);
     }
 });
-
 
 module.exports = {
     CanvasModel: CanvasModel,
