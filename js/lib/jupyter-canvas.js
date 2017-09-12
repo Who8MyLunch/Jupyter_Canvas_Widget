@@ -25,8 +25,8 @@ var CanvasModel = widgets.DOMWidgetModel.extend({
 
         _data_compressed:       new Uint8Array(0),
         _type:                 '',
-        _width:                '',
-        _height:                '',
+        // _width:                '',
+        // _height:                '',
     })
 });
 
@@ -46,8 +46,8 @@ var CanvasView = widgets.DOMWidgetView.extend({
         // .listenTo() is better than .on()
         // https://coderwall.com/p/fpxt4w/using-backbone-s-new-listento
         this.listenTo(this.model, 'change:_data_compressed', this.update_data);
-        this.listenTo(this.model, 'change:_width', this.update_css_size);
-        this.listenTo(this.model, 'change:_height', this.update_css_size);
+        // this.listenTo(this.model, 'change:_width', this.update_css_size);
+        // this.listenTo(this.model, 'change:_height', this.update_css_size);
 
         // Prevent page from scrolling with mouse wheel events over canvas
         this.canvas.onwheel = function(ev) {
@@ -61,7 +61,7 @@ var CanvasView = widgets.DOMWidgetView.extend({
 
         this.update();
         this.update_data();
-        this.update_css_size();
+        // this.update_css_size();
     },
 
     update_data: function() {
@@ -73,20 +73,20 @@ var CanvasView = widgets.DOMWidgetView.extend({
         promise.then(this.draw.bind(this));
     },
 
-    update_css_size: function() {
-        // Update CSS display width and height.  No need to redraw canvas.
-        if (valid_size(this.model.get('_width'))) {
-            this.canvas.style.width = this.model.get('_width') + 'px';
-        } else {
-            this.canvas.style.width = null;
-        };
+    // update_css_size: function() {
+    //     // Update CSS display width and height.  No need to redraw canvas.
+    //     if (valid_size(this.model.get('_width'))) {
+    //         this.canvas.style.width = this.model.get('_width') + 'px';
+    //     } else {
+    //         this.canvas.style.width = null;
+    //     };
 
-        if (valid_size(this.model.get('_height'))) {
-            this.canvas.style.height = this.model.get('_height') + 'px';
-        } else {
-            this.canvas.style.height = null;
-        };
-    },
+    //     if (valid_size(this.model.get('_height'))) {
+    //         this.canvas.style.height = this.model.get('_height') + 'px';
+    //     } else {
+    //         this.canvas.style.height = null;
+    //     };
+    // },
 
     draw: function(image) {
         // Draw image to the canvas

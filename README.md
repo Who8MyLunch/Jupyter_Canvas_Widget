@@ -31,27 +31,15 @@ In the near-term I simply want a robust tool for displaying images from numpy da
 will require the following functionality:
 
 **width and height:**
-- Width and height require special consideration.  Overall displayed image size is defined by CSS
+- x Width and height require special consideration.  Overall displayed image size is defined by CSS
   style attributes `canvas.style.width` and `canvas.style.height`.  These correspond to actual display
   pixels on your monitor and can be independent of canvas size.
-- Canvas itself has a width and height, measured in pixels.
-- The image data has its own size determined by the size of the original Numpy array.
-- Size stuff gets even more complicated once I start allowing for zooming.  Is that something to
-  handle via CSS?  Via Canvas size?
 
-
-- Default option will be to set display size (CSS pixels) equal to image's 2D array size
-- On the Python side I'll have two properties: width and height that will map to widget's
+- x Default option will be to set display size (CSS pixels) equal to image's 2D array size
+- x On the Python side I'll have two properties: width and height that will map to widget's
   displayed size.
-- I'm also considering a zoom scale factor.  What about an option to lock the aspect ratio?  Nope,
-  that's getting too complicated.
-
-
-- On the JavaScript end the canvas will be sized to exactly match the 2D image array size
-- The displayed size will be managed by manipulating CSS style width and height
-- The above is the simplest to implement right now.  It will always be possible to make things
-  more complicated in the future, like when (if?) I ever get to working with the Canvas transform
-  functions.
+- x I'm also considering a zoom scale factor.  What about an option to lock the aspect ratio?  Nope,
+  that's getting too complicated.  Nope.  Not even a scale factor.
 
 
 **mouse click/motion events:**
