@@ -30,18 +30,6 @@ Python callback functions.
 In the near-term I simply want a robust tool for displaying images from numpy data arrays.  This
 will require the following functionality:
 
-**data handling:**
-- Accept data from user at backend
-- Compress the data using my external image-helper package `Image_Attendant`
-- Store data in binary form in an Attribute that syncs to the front end via Widget's internal
-  framework.  Traitlets.Bytes().
-- At the frontend I'll need to create the following objects for internal use: Canvas, 2D Context,
-- Handle binary data at frontend using Typed Array buffers and views:
-  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays
-- Which to use: ImageData or ImageBitmap??  I think ImageBitmap, look here: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap
-- Transfer bytes to a Blob.  Then instantiate an ImageBitmap using 2d context.  Then move/copy image
-  data into canvas.  Finally set width and height.
-
 **width and height:**
 - Width and height require special consideration.  Overall displayed image size is defined by CSS
   style attributes `canvas.style.width` and `canvas.style.height`.  These correspond to actual display
@@ -51,6 +39,28 @@ will require the following functionality:
 - Size stuff gets even more complicated once I start allowing for zooming.  Is that something to
   handle via CSS?  Via Canvas size?
 
+
+- Default option will be to set display size (CSS pixels) equal to image's 2D array size
+- On the Python side I'll have two properties: width and height that will map to widget's
+  displayed size.
+- I'm also considering a zoom scale factor.  What about an option to lock the aspect ratio?  Nope,
+  that's getting too complicated.
+
+
+- On the JavaScript end the canvas will be sized to exactly match the 2D image array size
+- The displayed size will be managed by manipulating CSS style width and height
+- The above is the simplest to implement right now.  It will always be possible to make things
+  more complicated in the future, like when (if?) I ever get to working with the Canvas transform
+  functions.
+
+
+**mouse click/motion events:**
+- Handling mouse event will require mapping from display mouse coordinates back to image pixel
+  coordinates.  That should not be a problem.
+- I'll need to setup a dict for sending event information to the backend.  See my video widget
+  project for an example, including working with user callback functions.
+
+
 **image transforms:**
 - Canvas also supports arbitrary affine transforms applied to image.  This could be useful to handle
   zooming or rotations.  Once I go this far I would need to separate the window size from the
@@ -59,14 +69,14 @@ will require the following functionality:
   not painting myself into a corner in the early stages.
 
 
-# Test it on Binder
-
-[![Binder](http://mybinder.org/badge.svg)](TBD)
-
-
 # Example Usage
 
 ![image](TBD)
+
+
+# Test it on Binder
+
+[![Binder](http://mybinder.org/badge.svg)](TBD)
 
 
 # Mouse Event Handling

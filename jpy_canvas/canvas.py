@@ -23,8 +23,8 @@ class Canvas(ipywidgets.DOMWidget):
     # Private information
     _data_compressed = traitlets.Bytes(help='Compressed image data').tag(sync=True)
     _type = traitlets.Unicode(help='Encoding format, e.g. PNG or JPEG').tag(sync=True)
-    # _width = CUnicode(help='Width of the image in pixels').tag(sync=True)
-    # _height = CUnicode(help='Height of the image in pixels').tag(sync=True)
+    _width = traitlets.CUnicode(help='Display width of the image in pixels').tag(sync=True)
+    _height = traitlets.CUnicode(help='Display height of the image in pixels').tag(sync=True)
     # _event = traitlets.Dict().tag(sync=True)
 
     # Public information
@@ -34,9 +34,7 @@ class Canvas(ipywidgets.DOMWidget):
     def __init__(self, data=None, url=None, format='webp', quality=70):
         """Instantiate a new Canvas Image Widget object.
 
-        Display images using HTML5 Canvas via Jupyter Notebook widget system.
-        Image data must be a Numpy array (or equivalent) with a shape
-        similar to one of the following:
+        Image data must be compatible with a Numpy array with a shape similar to the following:
             (rows, columns)    - Greyscale
             (rows, columns, 1) - Greyscale
             (rows, columns, 3) - RGB
@@ -64,6 +62,8 @@ class Canvas(ipywidgets.DOMWidget):
 
     @property
     def format(self):
+        """Mime-type format
+        """
         return self._format
 
     @format.setter
@@ -94,6 +94,7 @@ class Canvas(ipywidgets.DOMWidget):
         """Image data as Numpy array
         """
         if self._data is None and self._data_compressed is not None:
+            # For when widget is instantiated via image URL
             self._data = imat.decompress(self._data_compressed)
 
         return self._data
@@ -105,16 +106,24 @@ class Canvas(ipywidgets.DOMWidget):
         self._data_compressed = imat.compress(self._data, self._format, quality=self.quality)
 
     @property
-    def shape(self):
-        return self.data.shape
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, value):
+        if not value:
+            value = ''
+        self._width = value
 
     @property
     def height(self):
-        return self.data.shape[0]
+        return self._height
 
-    @property
-    def width(self):
-        return self.data.shape[1]
+    @height.setter
+    def height(self, value):
+        if not value:
+            value = ''
+        self._height = value
 
 #------------------------------------------------
 
