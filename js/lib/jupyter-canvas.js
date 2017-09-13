@@ -3,6 +3,33 @@ var _ = require('lodash');
 
 var version = require('../package.json').version;
 
+
+
+// https://remysharp.com/2010/07/21/throttling-function-calls
+// See updated version in above article's comments
+function throttle(fn, threshhold, scope) {
+  // threshhold || (threshhold = 250);
+    var last, deferTimer;
+
+    return function () {
+        var context = scope || this;
+
+        var now = +new Date, args = arguments
+        if (last && now < last + threshhold) {
+          // hold on to it
+          clearTimeout(deferTimer);
+          deferTimer = setTimeout(function () {
+            last = now
+            fn.apply(context, args);
+          }, threshhold + last - now);
+        } else {
+          last = now
+          fn.apply(context, args);
+        };
+    };
+};
+
+
 function valid_size(value) {
     if (isNaN(value)) return false;
     if (value == '')  return false;
@@ -10,6 +37,7 @@ function valid_size(value) {
     return true;
 };
 
+//-----------------------------------------------
 //-----------------------------------------------
 
 // The Model manages widget's state information
@@ -24,9 +52,8 @@ var CanvasModel = widgets.DOMWidgetModel.extend({
         _view_module_version:   version,
 
         _data_compressed:       new Uint8Array(0),
-        _type:                 '',
-        // _width:                '',
-        // _height:                '',
+        _type:                 'image/webp',
+        _event:                 {}
     })
 });
 
@@ -46,15 +73,31 @@ var CanvasView = widgets.DOMWidgetView.extend({
         // .listenTo() is better than .on()
         // https://coderwall.com/p/fpxt4w/using-backbone-s-new-listento
         this.listenTo(this.model, 'change:_data_compressed', this.update_data);
-        // this.listenTo(this.model, 'change:_width', this.update_css_size);
-        // this.listenTo(this.model, 'change:_height', this.update_css_size);
 
-        // Prevent page from scrolling with mouse wheel events over canvas
+        //-------------------------------------------------
+        // Canvas element event handlers
+        // https://developer.mozilla.org/en-US/docs/Web/Reference/Events
+        // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+        this.canvas.addEventListener('mouseup',   this.handle_event.bind(this));
+        this.canvas.addEventListener('mousedown', this.handle_event.bind(this));
+        this.canvas.addEventListener('wheel',     this.handle_event.bind(this));
+        this.canvas.addEventListener('click',     this.handle_event.bind(this));
+        this.canvas.addEventListener('dblclick',  this.handle_event.bind(this));
+        this.canvas.addEventListener('mousemove', this.handle_event.bind(this));
+
+        // Define throttled event handlers for mouse motion
+        // var dt = 50;  // miliseconds
+        // var throttled_mouse_motion = throttle(this.handle_event, dt, this);
+        // this.canvas.addEventListener('mousemove', throttled_mouse_motion);
+
+        //-------------------------------------------------
+        // Prevent mouse from doing default stuff
+        this.canvas.onmousedown = function(ev) {
+            ev.preventDefault();
+        };
         this.canvas.onwheel = function(ev) {
             ev.preventDefault();
         };
-
-        // Prevent context menu popup from right-click on canvas
         this.canvas.oncontextmenu = function(ev) {
             ev.preventDefault();
         };
@@ -62,15 +105,6 @@ var CanvasView = widgets.DOMWidgetView.extend({
         this.update();
         this.update_data();
         // this.update_css_size();
-    },
-
-    update_data: function() {
-        // https://developer.mozilla.org/en-US/docs/Web/API/Blob
-        var options = {'type': this.model.get('_type')};
-        var blob = new Blob([this.model.get('_data_compressed')], options);
-
-        var promise = createImageBitmap(blob);
-        promise.then(this.draw.bind(this));
     },
 
     // update_css_size: function() {
@@ -88,13 +122,58 @@ var CanvasView = widgets.DOMWidgetView.extend({
     //     };
     // },
 
+    update_data: function() {
+        // https://developer.mozilla.org/en-US/docs/Web/API/Blob
+        var options = {'type': this.model.get('_type')};
+        var blob = new Blob([this.model.get('_data_compressed')], options);
+
+        var promise = createImageBitmap(blob);
+        promise.then(this.draw.bind(this));
+    },
+
     draw: function(image) {
         // Draw image to the canvas
         this.canvas.width = image.width;
         this.canvas.height = image.height;
 
         this.ctx.drawImage(image, 0, 0);
+    },
+
+    handle_event: function(ev) {
+        // General mouse-event handler
+        var pev = {'type': ev.type};
+
+        var fields = ['shiftKey', 'altKey', 'ctrlKey', 'timeStamp', 'buttons']
+        for (let f of fields) {
+            pev[f] = ev[f]
+        };
+
+        // Canvas-local XY coordinates
+        // https://developer.mozilla.org/en-US/docs/Web/API/Element.getBoundingClientRect
+        var rect = this.canvas.getBoundingClientRect();
+
+        // Relative coordinates
+        var X = (ev.clientX - rect.left) / (rect.right  - rect.left);
+        var Y = (ev.clientY - rect.top)  / (rect.bottom - rect.top);
+
+        // Canvas data coordinates
+        pev.canvasX = Math.floor(X*this.canvas.width);
+        pev.canvasY = Math.floor(Y*this.canvas.height);
+
+        // Additional fields for `wheel` event
+        // https://developer.mozilla.org/en-US/docs/Web/Reference/Events/wheel
+        if (ev.type == 'wheel') {
+            fields = ['deltaMode', 'deltaX', 'deltaY', 'deltaZ']
+            for (let f of fields) {
+                pev[f] = ev[f]
+            };
+        };
+
+        // Done
+        this.model.set('_event', pev);
+        this.touch();
     }
+
 });
 
 module.exports = {

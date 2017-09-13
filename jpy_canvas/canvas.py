@@ -23,9 +23,7 @@ class Canvas(ipywidgets.DOMWidget):
     # Private information
     _data_compressed = traitlets.Bytes(help='Compressed image data').tag(sync=True)
     _type = traitlets.Unicode(help='Encoding format, e.g. PNG or JPEG').tag(sync=True)
-    # _width = traitlets.CUnicode(help='Image display width in CSS pixels').tag(sync=True)
-    # _height = traitlets.CUnicode(help='Image display height in CSS pixels').tag(sync=True)
-    # _event = traitlets.Dict().tag(sync=True)
+    _event = traitlets.Dict(help='Canvas-generated event information').tag(sync=True)
 
     # Public information
     # https://developer.mozilla.org/en/docs/Web/CSS/image-rendering
@@ -59,6 +57,10 @@ class Canvas(ipywidgets.DOMWidget):
             self.url = url
         elif data is not None:
             self.data = data
+
+        # Manage user-defined Python callback functions for frontend events
+        self._event_dispatchers = {}  # ipywidgets.widget.CallbackDispatcher()
+
 
     @property
     def format(self):
@@ -155,6 +157,70 @@ class Canvas(ipywidgets.DOMWidget):
             self.layout.height = '{:.0f}px'.format(value)
         else:
             self.layout.height = ''
+
+    #--------------------------------------------
+    # Register Python event handlers
+    def register(self, callback, event_type='', remove=False):
+        """(un)Register a Python event=-handler functions.
+        Default is to register for all event types.  May be called repeatedly to set multiple
+        callback functions. Supplied callback function(s) must accept two arguments: widget
+        instance and event dict.
+
+        Non-exhaustive list of event types:
+            - mousemove
+            - mouseup
+            - mousedown
+            - click
+            - wheel
+
+        Set keyword remove=True to unregister an existing callback function.
+        """
+        if event_type not in self._event_dispatchers:
+            self._event_dispatchers[event_type] = ipywidgets.widget.CallbackDispatcher()
+
+        # Register with specified dispatcher
+        self._event_dispatchers[event_type].register_callback(callback, remove=remove)
+
+    def unregister_all(self):
+        """Unregister all event handler functions.
+        """
+        for kind, dispatcher in self._event_dispatchers.items():
+            for cb in dispatcher.callbacks:
+                self.register(cb, kind, remove=True)
+
+    def register_move(self, callback):
+        """Convenience function to register Python event handler for 'mousemove' event.
+        """
+        self.register(callback, 'mousemove')
+
+    def register_click(self, callback):
+        """Convenience function to register Python event handler for 'click' event.
+        """
+        self.register(callback, 'click')
+
+    #--------------------------------------------
+    # Respond to front-end events by calling user's registered handler functions
+    @traitlets.observe('_event')
+    def _handle_event(self, change):
+        """Respond to front-end backbone events
+        https://traitlets.readthedocs.io/en/stable/api.html#callbacks-when-trait-attributes-change
+        """
+        assert(change['type'] == 'change')
+
+        if change['name'] == '_event':
+            # new stuff is a dict of event information from front end
+            ev = change['new']
+        else:
+            # raise error or not?
+            return
+
+        # Call any registered event-specific handler functions
+        if ev['type'] in self._event_dispatchers:
+            self._event_dispatchers[ev['type']](self, ev)
+
+        # Call any general event handler function
+        if '' in self._event_dispatchers:
+            self._event_dispatchers[''](self, ev)
 
 #------------------------------------------------
 
