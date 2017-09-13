@@ -73,6 +73,7 @@ var CanvasView = widgets.DOMWidgetView.extend({
         // .listenTo() is better than .on()
         // https://coderwall.com/p/fpxt4w/using-backbone-s-new-listento
         this.listenTo(this.model, 'change:_data_compressed', this.update_data);
+        this.listenTo(this.model, 'change:pixelated', this.update_pixelated);
 
         //-------------------------------------------------
         // Canvas element event handlers
@@ -94,17 +95,18 @@ var CanvasView = widgets.DOMWidgetView.extend({
         // Prevent mouse from doing default stuff
         this.canvas.onmousedown = function(ev) {
             ev.preventDefault();
-        };
+        }
         this.canvas.onwheel = function(ev) {
             ev.preventDefault();
-        };
+        }
         this.canvas.oncontextmenu = function(ev) {
             ev.preventDefault();
-        };
+        }
 
+        // Done
         this.update();
         this.update_data();
-        // this.update_css_size();
+        this.update_pixelated();
     },
 
     // update_css_size: function() {
@@ -114,13 +116,23 @@ var CanvasView = widgets.DOMWidgetView.extend({
     //     } else {
     //         this.canvas.style.width = null;
     //     };
-
     //     if (valid_size(this.model.get('_height'))) {
     //         this.canvas.style.height = this.model.get('_height') + 'px';
     //     } else {
     //         this.canvas.style.height = null;
     //     };
     // },
+
+    update_pixelated: function() {
+        // Image rendering quality via CSS style
+        // https://developer.mozilla.org/en/docs/Web/CSS/image-rendering
+        // Possible values: auto, crisp-edges, pixelated
+        if (this.model.get('pixelated')) {
+            this.canvas.style.imageRendering = 'pixelated'
+        } else {
+            this.canvas.style.imageRendering = 'auto'
+        }
+    },
 
     update_data: function() {
         // https://developer.mozilla.org/en-US/docs/Web/API/Blob
@@ -141,37 +153,40 @@ var CanvasView = widgets.DOMWidgetView.extend({
 
     handle_event: function(ev) {
         // General mouse-event handler
-        var pev = {'type': ev.type};
+        if (this.model.get('_events_active')) {
 
-        var fields = ['shiftKey', 'altKey', 'ctrlKey', 'timeStamp', 'buttons']
-        for (let f of fields) {
-            pev[f] = ev[f]
-        };
+            var pev = {'type': ev.type};
 
-        // Canvas-local XY coordinates
-        // https://developer.mozilla.org/en-US/docs/Web/API/Element.getBoundingClientRect
-        var rect = this.canvas.getBoundingClientRect();
-
-        // Relative coordinates
-        var X = (ev.clientX - rect.left) / (rect.right  - rect.left);
-        var Y = (ev.clientY - rect.top)  / (rect.bottom - rect.top);
-
-        // Canvas data coordinates
-        pev.canvasX = Math.floor(X*this.canvas.width);
-        pev.canvasY = Math.floor(Y*this.canvas.height);
-
-        // Additional fields for `wheel` event
-        // https://developer.mozilla.org/en-US/docs/Web/Reference/Events/wheel
-        if (ev.type == 'wheel') {
-            fields = ['deltaMode', 'deltaX', 'deltaY', 'deltaZ']
+            var fields = ['shiftKey', 'altKey', 'ctrlKey', 'timeStamp', 'buttons']
             for (let f of fields) {
                 pev[f] = ev[f]
-            };
-        };
+            }
 
-        // Done
-        this.model.set('_event', pev);
-        this.touch();
+            // Canvas-local XY coordinates
+            // https://developer.mozilla.org/en-US/docs/Web/API/Element.getBoundingClientRect
+            var rect = this.canvas.getBoundingClientRect();
+
+            // Relative coordinates
+            var X = (ev.clientX - rect.left) / (rect.right  - rect.left);
+            var Y = (ev.clientY - rect.top)  / (rect.bottom - rect.top);
+
+            // Canvas data coordinates
+            pev.canvasX = Math.floor(X*this.canvas.width);
+            pev.canvasY = Math.floor(Y*this.canvas.height);
+
+            // Additional fields for `wheel` event
+            // https://developer.mozilla.org/en-US/docs/Web/Reference/Events/wheel
+            if (ev.type == 'wheel') {
+                fields = ['deltaMode', 'deltaX', 'deltaY', 'deltaZ']
+                for (let f of fields) {
+                    pev[f] = ev[f]
+                }
+            }
+
+            // Done
+            this.model.set('_event', pev);
+            this.touch();
+        }
     }
 
 });
@@ -179,4 +194,4 @@ var CanvasView = widgets.DOMWidgetView.extend({
 module.exports = {
     CanvasModel: CanvasModel,
     CanvasView: CanvasView
-};
+}

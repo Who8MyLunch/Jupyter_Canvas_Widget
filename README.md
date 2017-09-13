@@ -27,34 +27,12 @@ Python callback functions.
 
 # Work-in-Progress
 
-In the near-term I simply want a robust tool for displaying images from numpy data arrays.  This
-will require the following functionality:
+Things are all falling into place.
 
-**width and height:**
-- x Width and height require special consideration.  Overall displayed image size is defined by CSS
-  style attributes `canvas.style.width` and `canvas.style.height`.  These correspond to actual display
-  pixels on your monitor and can be independent of canvas size.
+The next piece to consider is allowing for changing the method used for image resampling.  When
+zoomed in so close that individual pixels are clearly resolved I want to see individual squares.
 
-- x Default option will be to set display size (CSS pixels) equal to image's 2D array size
-- x On the Python side I'll have two properties: width and height that will map to widget's
-  displayed size.
-- x I'm also considering a zoom scale factor.  What about an option to lock the aspect ratio?  Nope,
-  that's getting too complicated.  Nope.  Not even a scale factor.
-
-
-**mouse click/motion events:**
-- Handling mouse event will require mapping from display mouse coordinates back to image pixel
-  coordinates.  That should not be a problem.
-- I'll need to setup a dict for sending event information to the backend.  See my video widget
-  project for an example, including working with user callback functions.
-
-
-**image transforms:**
-- Canvas also supports arbitrary affine transforms applied to image.  This could be useful to handle
-  zooming or rotations.  Once I go this far I would need to separate the window size from the
-  data size.  I don't really want to go down that route just yet, but in the future I might
-  want that option.  I should simply focus on implementing basic features, and just be aware about
-  not painting myself into a corner in the early stages.
+Later I might also want to consider capturing keyboard events when the canvas has focus.
 
 
 # Example Usage
