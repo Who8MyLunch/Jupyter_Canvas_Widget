@@ -3,7 +3,7 @@
 **This is very much a work in progress!**
 
 There already exists a Jupyter Image Widget ([ipywidgets](https://github.com/jupyter-widgets/ipywidgets)),
-so make another one?  That widget takes care of the tricky work involving transfering compressed
+so why make another one?  That widget takes care of the tricky work involving transfering compressed
 image data from the backend to the frontend.  But it leaves it to the user to handle converting an
 array of image data into a sequence of compressed image bytes.  It also doesn't readily support
 mouse events via Python callback functions.
