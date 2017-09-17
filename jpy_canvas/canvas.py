@@ -56,8 +56,10 @@ class Canvas(ipywidgets.DOMWidget):
 
         if url:
             self.url = url
-        elif data is not None:
+        else:
             self.data = data
+        # elif data is not None:
+        #     self.data = data
 
         # Manage user-defined Python callback functions for frontend events
         self._event_dispatchers = {}  # ipywidgets.widget.CallbackDispatcher()
@@ -107,21 +109,28 @@ class Canvas(ipywidgets.DOMWidget):
 
     @data.setter
     def data(self, value):
-        self._data = np.asarray(value)
-
-        if self._data is None:
-            compressed = b''
-            height = 0
-            width = 0
-        else:
-            compressed = imat.compress(self._data, self._format, quality=self.quality)
-            height = 0  # self._data.shape[0]
-            width = 0  # self._data.shape[1]
+        # if value is None:
+        #     # Reset to a small transparent rectangle
+        #     value = np.zeros((50, 100, 4), dtype=np.uint8)
+        # self._data = np.asarray(value)
+        # compressed = imat.compress(self._data, self._format, quality=self.quality)
+        height = self._data.shape[0]
+        width = self._data.shape[1]
 
         with self.hold_sync():
-            self._data_compressed = compressed
+            self._update_data(value)
             self.height = height
             self.width = width
+
+    def _update_data(self, value):
+        """Update data only, leave shape unchanged
+        """
+        if value is None:
+            # Reset to a small transparent rectangle
+            value = np.zeros((50, 100, 4), dtype=np.uint8)
+
+        self._data = np.asarray(value)
+        self._data_compressed = imat.compress(self._data, self._format, quality=self.quality)
 
     @property
     def width(self):
@@ -164,17 +173,18 @@ class Canvas(ipywidgets.DOMWidget):
     def _update_pixelated(self):
         """Try to be clever about when to set CSS image rendering to use nearest-neighbor or not
         """
-        cH, cW = self.height, self.width
-        dH, dW = self.data.shape[:2]
+        if self.data is not None:
+            cH, cW = self.height, self.width
+            dH, dW = self.data.shape[:2]
 
-        with self.hold_sync():
-            self.pixelated = False
-            if cW:
-                if cW > dW:
-                    self.pixelated = True
-            elif cH:
-                if cH > dH:
-                    self.pixelated = True
+            with self.hold_sync():
+                self.pixelated = False
+                if cW:
+                    if cW > dW:
+                        self.pixelated = True
+                elif cH:
+                    if cH > dH:
+                        self.pixelated = True
 
     #--------------------------------------------
     # Register Python event handlers
@@ -189,6 +199,7 @@ class Canvas(ipywidgets.DOMWidget):
             - mouseup
             - mousedown
             - click
+            - contextmenu
             - dblclick
             - wheel
 
@@ -218,7 +229,8 @@ class Canvas(ipywidgets.DOMWidget):
     def register_click(self, callback):
         """Convenience function to register Python event handler for 'click' event
         """
-        self.register(callback, 'click')
+        self.register(callback, 'click')        # this captures left-clicks
+        self.register(callback, 'contextmenu')  # this captures right-clicks
 
     def _num_handlers(self):
         """Number of registered canvas event handlers

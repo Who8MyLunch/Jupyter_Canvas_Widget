@@ -27,10 +27,7 @@ Python callback functions.
 
 # Work-in-Progress
 
-Things are all falling into place.
-
-The next piece to consider is allowing for changing the method used for image resampling.  When
-zoomed in so close that individual pixels are clearly resolved I want to see individual squares.
+Things are falling into place.
 
 Later I might also want to consider capturing keyboard events when the canvas has focus.
 

@@ -53,7 +53,9 @@ var CanvasModel = widgets.DOMWidgetModel.extend({
 
         _data_compressed:       new Uint8Array(0),
         _type:                 'image/webp',
-        _event:                 {}
+        _event:                 {},
+        _events_active:         false,
+        pixelated:              false
     })
 });
 
@@ -79,12 +81,14 @@ var CanvasView = widgets.DOMWidgetView.extend({
         // Canvas element event handlers
         // https://developer.mozilla.org/en-US/docs/Web/Reference/Events
         // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-        this.canvas.addEventListener('mouseup',   this.handle_event.bind(this));
-        this.canvas.addEventListener('mousedown', this.handle_event.bind(this));
-        this.canvas.addEventListener('wheel',     this.handle_event.bind(this));
-        this.canvas.addEventListener('click',     this.handle_event.bind(this));
-        this.canvas.addEventListener('dblclick',  this.handle_event.bind(this));
-        this.canvas.addEventListener('mousemove', this.handle_event.bind(this));
+        // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+        this.canvas.addEventListener('mouseup',     this.handle_mouse_event.bind(this));
+        this.canvas.addEventListener('mousedown',   this.handle_mouse_event.bind(this));
+        this.canvas.addEventListener('wheel',       this.handle_mouse_event.bind(this));
+        this.canvas.addEventListener('click',       this.handle_mouse_event.bind(this));
+        this.canvas.addEventListener('contextmenu', this.handle_mouse_event.bind(this));
+        this.canvas.addEventListener('dblclick',    this.handle_mouse_event.bind(this));
+        this.canvas.addEventListener('mousemove',   this.handle_mouse_event.bind(this));
 
         // Define throttled event handlers for mouse motion
         // var dt = 50;  // miliseconds
@@ -151,13 +155,15 @@ var CanvasView = widgets.DOMWidgetView.extend({
         this.ctx.drawImage(image, 0, 0);
     },
 
-    handle_event: function(ev) {
+    handle_mouse_event: function(ev) {
         // General mouse-event handler
         if (this.model.get('_events_active')) {
 
             var pev = {'type': ev.type};
 
-            var fields = ['shiftKey', 'altKey', 'ctrlKey', 'timeStamp', 'buttons']
+            var fields = ['shiftKey', 'altKey', 'ctrlKey', 'timeStamp', 'buttons', 'button']
+            // movementX, movementY
+
             for (let f of fields) {
                 pev[f] = ev[f]
             }
