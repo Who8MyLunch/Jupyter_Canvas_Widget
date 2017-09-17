@@ -36,7 +36,12 @@ I'm very include to take complete control of displayed widget width and height. 
 relied on certain convenient behavior when those settings are undefined.  And I've relied upon
 ipywidgets internal handling of style attributes.
 
-If I want control I should take control.
+If I want control I should take control!
+
+I need two methods for accepting new image data:
+- current method using data property.  no options, makes cetain assumptions.
+- explicit function like set_image_data(), allowing for complete control.  The above property
+  approach should call this function internally.
 
 ## To Do
 - Consider capturing keyboard events when the canvas has focus

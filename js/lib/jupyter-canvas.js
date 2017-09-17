@@ -52,7 +52,9 @@ var CanvasModel = widgets.DOMWidgetModel.extend({
         _view_module_version:   version,
 
         _data_compressed:       new Uint8Array(0),
-        _type:                 'image/webp',
+        _type:                 'image/png',
+        _width:                 0,
+        _height:                0,
         _event:                 {},
         _events_active:         false,
         pixelated:              false
@@ -113,19 +115,19 @@ var CanvasView = widgets.DOMWidgetView.extend({
         this.update_pixelated();
     },
 
-    // update_css_size: function() {
-    //     // Update CSS display width and height.  No need to redraw canvas.
-    //     if (valid_size(this.model.get('_width'))) {
-    //         this.canvas.style.width = this.model.get('_width') + 'px';
-    //     } else {
-    //         this.canvas.style.width = null;
-    //     };
-    //     if (valid_size(this.model.get('_height'))) {
-    //         this.canvas.style.height = this.model.get('_height') + 'px';
-    //     } else {
-    //         this.canvas.style.height = null;
-    //     };
-    // },
+    update_css_size: function() {
+        // Update CSS display width and height.  No need to redraw canvas.
+        if (valid_size(this.model.get('_width'))) {
+            this.canvas.style.width = this.model.get('_width') + 'px';
+        } else {
+            this.canvas.style.width = null;
+        };
+        if (valid_size(this.model.get('_height'))) {
+            this.canvas.style.height = this.model.get('_height') + 'px';
+        } else {
+            this.canvas.style.height = null;
+        };
+    },
 
     update_pixelated: function() {
         // Image rendering quality via CSS style

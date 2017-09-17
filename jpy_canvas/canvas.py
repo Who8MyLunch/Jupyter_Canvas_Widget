@@ -22,6 +22,8 @@ class Canvas(ipywidgets.DOMWidget):
 
     # Private information
     _data_compressed = traitlets.Bytes(help='Compressed image data').tag(sync=True)
+    _width = traitlets.CInt(help='Image display width (CSS pixels)').tag(sync=True)
+    _height = traitlets.CInt(help='Image display height (CSS pixels)').tag(sync=True)
     _type = traitlets.Unicode(help='Encoding format, e.g. PNG or JPEG').tag(sync=True)
     _event = traitlets.Dict(help='Canvas-generated event information').tag(sync=True)
     _events_active = traitlets.Bool(False, help='Indicate if canvas events are actively captured').tag(sync=True)
