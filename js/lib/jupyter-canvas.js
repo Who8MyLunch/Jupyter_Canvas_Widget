@@ -149,7 +149,7 @@ var CanvasView = widgets.DOMWidgetView.extend({
 
     draw: function(image) {
         // Draw image to the canvas
-        this.canvas.width = image.width;
+        this.canvas.width = image.width;     // size changes must be done prior to drawImage function!
         this.canvas.height = image.height;
 
         this.ctx.drawImage(image, 0, 0);
@@ -176,7 +176,7 @@ var CanvasView = widgets.DOMWidgetView.extend({
             var X = (ev.clientX - rect.left) / (rect.right  - rect.left);
             var Y = (ev.clientY - rect.top)  / (rect.bottom - rect.top);
 
-            // Canvas data coordinates
+            // Data pixel coordinates
             pev.canvasX = Math.floor(X*this.canvas.width);
             pev.canvasY = Math.floor(Y*this.canvas.height);
 

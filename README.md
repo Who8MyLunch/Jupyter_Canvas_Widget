@@ -27,12 +27,31 @@ Python callback functions.
 
 # Work-in-Progress
 
-Things are falling into place.
+Ok, playing with various examples has revealed potential issues:
+- Setting data to null is not trivial
+- A canvas widget embedded inside a ipywidgets.Box widget overrides CSS display sizes.
+- I tried using the static HTML embed feature but couldn't get it to work.  Might have been my fault.
 
-Mouse event stuff has potential to really complicate the crap out of this project.
+I'm very include to take complete control of displayed widget width and height.  So far I have
+relied on certain convenient behavior when those settings are undefined.  And I've relied upon
+ipywidgets internal handling of style attributes.
 
-Later I might also want to consider capturing keyboard events when the canvas has focus.
+If I want control I should take control.
 
+## To Do
+- Consider capturing keyboard events when the canvas has focus
+- Update readme contents
+- Verify static HTML embed functionality
+- Include URL example
+- Consider using ordered namespace objects for storing widget event information
+    - This requires ensuring all emitted events contain identical fields, else too much potential
+      for stale information.
+- Consider setting up poor man's video player example.  Video frames from where?  I'll take a
+  sequence of photos with my phone!  Perhaps different view angles of a nice flower.
+- Research how to maintain CSS width/height sizes, even when embedded in another container. Might
+  be a simple style setting?  If so, do I set those values inside my JS client?  Or do I rely
+  upon ipywidgets `layout.style` attributes?  BTW, in the past those attributes have not had a stable
+  API.
 
 # Example Usage
 
