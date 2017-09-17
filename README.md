@@ -29,6 +29,8 @@ Python callback functions.
 
 Things are falling into place.
 
+Mouse event stuff has potential to really complicate the crap out of this project.
+
 Later I might also want to consider capturing keyboard events when the canvas has focus.
 
 
