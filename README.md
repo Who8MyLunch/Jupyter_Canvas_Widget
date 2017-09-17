@@ -17,13 +17,23 @@ Python callback functions.
 
 ## Features
 
-- Accept image data from Numpy arrays or URLs
-- Support Python callback functions for front-end mouse events
-- Support Canvas affine transform operations (work in progress)
+- Accept image data from either Numpy arrays or URLs.  User does not have to think about compression
+  methods and details.
+- Support Python callback functions for canvas-generated mouse events
+- Leverage Jupyter ipywidgets native support for efficiently transfering binary data from backend to
+  frontend, e.g. [7.0 change log](https://github.com/jupyter-widgets/ipywidgets/blob/master/docs/source/changelog.md#70),
+  [#1643](https://github.com/jupyter-widgets/ipywidgets/pull/1643),
+  [#1595](https://github.com/jupyter-widgets/ipywidgets/pull/1595), and
+  [#1194](https://github.com/jupyter-widgets/ipywidgets/pull/1194).
+
+
+hmmmm, not sure yet how to handle this stuff:
 - Widget properties `width` and `height` allow for direct manipulation displayed image size,
   independent of source data size
-- Leverage Jupyter ipywidgets native support for transfering binary data between backend and
-  frontend (no more encode-64)
+
+## Future Plans
+
+- Support for image change deltas
 
 # Work-in-Progress
 
@@ -32,7 +42,7 @@ Ok, playing with various examples has revealed potential issues:
 - A canvas widget embedded inside a ipywidgets.Box widget overrides CSS display sizes.
 - I tried using the static HTML embed feature but couldn't get it to work.  Might have been my fault.
 
-I'm very include to take complete control of displayed widget width and height.  So far I have
+I'm very inclined to take complete control of displayed widget width and height.  So far I have
 relied on certain convenient behavior when those settings are undefined.  And I've relied upon
 ipywidgets internal handling of style attributes.
 
@@ -42,6 +52,22 @@ I need two methods for accepting new image data:
 - current method using data property.  no options, makes cetain assumptions.
 - explicit function like set_image_data(), allowing for complete control.  The above property
   approach should call this function internally.
+
+Add support for zoom factor??
+
+What about automatic zoom/shrink to make image fit available space?
+
+I like the idea of restricting display size to no more than current cell width.  This can
+be done entirely on JS side.
+
+Default action should be to display the image at its natural size, subject to the notebook
+cell width constraint
+
+What if user changes the width or height?  Should the aspect ratio be preserved automatically?
+
+there are CSS style attributes for min-width and max-width.  Let's see if I can leverage those.
+
+
 
 ## To Do
 - Consider capturing keyboard events when the canvas has focus
