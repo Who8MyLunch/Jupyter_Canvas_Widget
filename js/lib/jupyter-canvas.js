@@ -4,7 +4,6 @@ var _ = require('lodash');
 var version = require('../package.json').version
 
 
-
 // https://remysharp.com/2010/07/21/throttling-function-calls
 // See updated version in above article's comments
 function throttle(fn, threshhold, scope) {
@@ -58,8 +57,6 @@ function notebook_cell_width(el) {
 
 
 //-----------------------------------------------
-//-----------------------------------------------
-
 // The Model manages widget's state information
 var CanvasModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
@@ -81,7 +78,6 @@ var CanvasModel = widgets.DOMWidgetModel.extend({
 })
 
 //-----------------------------------------------
-
 // The View renders the widget model
 var CanvasView = widgets.DOMWidgetView.extend({
     render: function() {
@@ -96,8 +92,9 @@ var CanvasView = widgets.DOMWidgetView.extend({
         // .listenTo() is better than .on()
         // https://coderwall.com/p/fpxt4w/using-backbone-s-new-listento
         this.listenTo(this.model, 'change:_data_compressed', this.update_data);
-        this.listenTo(this.model, 'change:_width', this.update_css_size);
-        this.listenTo(this.model, 'change:_AR', this.update_css_size);
+        this.listenTo(this.model, 'change:_width',           this.update_css);
+        this.listenTo(this.model, 'change:_AR',              this.update_css);
+        this.listenTo(this.model, 'change:allow_pixelated',  this.update_css);
 
         //-------------------------------------------------
         // Canvas element event handlers
@@ -132,18 +129,6 @@ var CanvasView = widgets.DOMWidgetView.extend({
         // Done
         this.update();
         this.update_data();
-        this.update_css_size();
-    },
-
-    update_pixelated: function() {
-        // Image rendering quality via CSS style
-        // https://developer.mozilla.org/en/docs/Web/CSS/image-rendering
-        // Possible values: 'auto', 'crisp-edges', 'pixelated'
-        if (this.model.get('pixelated')) {
-            this.canvas.style.imageRendering = 'pixelated'
-        } else {
-            this.canvas.style.imageRendering = 'auto'
-        }
     },
 
     update_data: function() {
@@ -157,15 +142,35 @@ var CanvasView = widgets.DOMWidgetView.extend({
 
     draw: function(image) {
         // Draw image to the canvas
-        this.canvas.width = image.width;    // canvas size changes must be done prior to
-        this.canvas.height = image.height;  //  drawImage else the canvas is automatically erased
+        this.canvas.width = image.width    // canvas size changes must be done prior to
+        this.canvas.height = image.height  //  drawImage else the canvas is automatically erased
+
+        this.update_css();
 
         this.ctx.drawImage(image, 0, 0);
     },
 
-    update_css_size: function() {
-        // Update CSS display width and height.  No need to redraw canvas.
+    check_pixelated: function() {
+        // Image rendering quality via CSS style
+        // auto: render pixelated if display size is greater than image size by a factor of 1.5 or more
+        if (this.model.get('allow_pixelated')) {
+            // pixelated rendering is allowed
+            var thresh = 1.5
+            if (this.model.get('_width') / this.canvas.width >= thresh) {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            // pixelated rendering is disabled
+            return false
+        }
+    },
 
+    update_css: function() {
+        // Update CSS display width and height.  No need to redraw canvas.
+        // This function should be called prior to drawing so that any styles are in place
+        // when the draw function is called.
         var width = this.model.get('_width');
         var AR = this.model.get('_AR');
 
@@ -176,8 +181,14 @@ var CanvasView = widgets.DOMWidgetView.extend({
             this.model.set('_width', width);
             this.touch();
         }
+        var height = Math.round(AR*width);
 
-        var height = Math.round(AR*width)
+        // Check and set image-rendering quality
+        if (this.check_pixelated()) {
+            this.canvas.style.imageRendering = 'pixelated'
+        } else {
+            this.canvas.style.imageRendering = 'auto'
+        }
 
         if (valid_size(width)) {
             this.canvas.style.width = width + 'px'
@@ -199,6 +210,7 @@ var CanvasView = widgets.DOMWidgetView.extend({
         }
     },
 
+    //------------------------------------------
     handle_mouse_event: function(ev) {
         // General mouse-event handler
         if (this.model.get('_events_active')) {
@@ -237,7 +249,6 @@ var CanvasView = widgets.DOMWidgetView.extend({
             this.touch();
         }
     }
-
 });
 
 module.exports = {

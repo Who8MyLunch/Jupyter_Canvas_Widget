@@ -29,26 +29,13 @@ Python callback functions.
   [#1194](https://github.com/jupyter-widgets/ipywidgets/pull/1194)
 
 
-
 ## Future Plans
 
 - Support for image change deltas
 
+
 # Work-in-Progress
 
-Ok, playing with various examples has revealed potential issues:
-- Setting data to null is not trivial
-- A canvas widget embedded inside a ipywidgets.Box widget overrides CSS display sizes.
-- I tried using the static HTML embed feature but couldn't get it to work.  Might have been my fault.
-
-I need two methods for accepting new image data:
-- current method using data property.  no options, makes cetain assumptions.
-- explicit function like set_image_data(), allowing for complete control.  The above property
-  approach should call this function internally.
-
-Add support for zoom factor??
-
-## To Do
 - Consider capturing keyboard events when the canvas has focus
 - Update readme contents
 - Verify static HTML embed functionality
@@ -59,9 +46,20 @@ Add support for zoom factor??
 - Consider setting up poor man's video player example.  Video frames from where?  I'll take a
   sequence of photos with my phone!  Perhaps different view angles of a nice flower.
 - Research how to maintain CSS width/height sizes, even when embedded in another container. Might
-  be a simple style setting?  If so, do I set those values inside my JS client?  Or do I rely
-  upon ipywidgets `layout.style` attributes?  BTW, in the past those attributes have not had a stable
-  API.
+  be a simple style setting?
+
+
+Ok, playing with various examples has revealed potential issues:
+- Setting data to null is not trivial
+- A canvas widget embedded inside a ipywidgets.Box widget overrides CSS display sizes.
+- I tried using the static HTML embed feature but couldn't get it to work.  Might have been my fault.
+
+
+I need two methods for accepting new image data:
+- current method using data property.  no options, makes cetain assumptions.
+- explicit function like set_image_data(), allowing for complete control.  The above property
+  approach should call this function internally.
+
 
 # Example Usage
 

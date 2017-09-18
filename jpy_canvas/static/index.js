@@ -94,8 +94,7 @@ module.exports['version'] = __webpack_require__(0).version;
 var widgets = __webpack_require__(3);
 var _ = __webpack_require__(4);
 
-var version = __webpack_require__(0).version;
-
+var version = __webpack_require__(0).version
 
 
 // https://remysharp.com/2010/07/21/throttling-function-calls
@@ -118,21 +117,39 @@ function throttle(fn, threshhold, scope) {
         } else {
           last = now
           fn.apply(context, args);
-        };
-    };
-};
+        }
+    }
+}
 
 
 function valid_size(value) {
-    if (isNaN(value)) return false;
-    if (value == '')  return false;
+    if (isNaN(value)) return false
+    if (value == '')  return false
 
-    return true;
-};
+    return true
+}
+
+
+function notebook_cell_width(el) {
+    // Determine width of notebook cell containing specified element.
+    // http://stackoverflow.com/questions/22119673/find-the-closest-ancestor-element-that-has-a-specific-class
+    // https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
+    var cls = '.output_subarea'
+    var cell = el.closest(cls);
+
+
+    if (cell == null) {
+        return null
+    } else {
+        var padding = 6
+        var width = cell.clientWidth - padding*2
+
+        return width
+    }
+}
+
 
 //-----------------------------------------------
-//-----------------------------------------------
-
 // The Model manages widget's state information
 var CanvasModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
@@ -145,15 +162,15 @@ var CanvasModel = widgets.DOMWidgetModel.extend({
         _view_module_version:   version,
 
         _data_compressed:       new Uint8Array(0),
-        _type:                 'image/webp',
+        _mime_type:            'image/png',
+        _width:                 0,
+        _AR:                    0.0,
         _event:                 {},
-        _events_active:         false,
-        pixelated:              false
+        _events_active:         false
     })
-});
+})
 
 //-----------------------------------------------
-
 // The View renders the widget model
 var CanvasView = widgets.DOMWidgetView.extend({
     render: function() {
@@ -168,7 +185,9 @@ var CanvasView = widgets.DOMWidgetView.extend({
         // .listenTo() is better than .on()
         // https://coderwall.com/p/fpxt4w/using-backbone-s-new-listento
         this.listenTo(this.model, 'change:_data_compressed', this.update_data);
-        this.listenTo(this.model, 'change:pixelated', this.update_pixelated);
+        this.listenTo(this.model, 'change:_width',           this.update_css);
+        this.listenTo(this.model, 'change:_AR',              this.update_css);
+        this.listenTo(this.model, 'change:allow_pixelated',  this.update_css);
 
         //-------------------------------------------------
         // Canvas element event handlers
@@ -189,7 +208,7 @@ var CanvasView = widgets.DOMWidgetView.extend({
         // this.canvas.addEventListener('mousemove', throttled_mouse_motion);
 
         //-------------------------------------------------
-        // Prevent mouse from doing default stuff
+        // Prevent mouse from doing annoying default stuff
         this.canvas.onmousedown = function(ev) {
             ev.preventDefault();
         }
@@ -203,37 +222,11 @@ var CanvasView = widgets.DOMWidgetView.extend({
         // Done
         this.update();
         this.update_data();
-        this.update_pixelated();
-    },
-
-    // update_css_size: function() {
-    //     // Update CSS display width and height.  No need to redraw canvas.
-    //     if (valid_size(this.model.get('_width'))) {
-    //         this.canvas.style.width = this.model.get('_width') + 'px';
-    //     } else {
-    //         this.canvas.style.width = null;
-    //     };
-    //     if (valid_size(this.model.get('_height'))) {
-    //         this.canvas.style.height = this.model.get('_height') + 'px';
-    //     } else {
-    //         this.canvas.style.height = null;
-    //     };
-    // },
-
-    update_pixelated: function() {
-        // Image rendering quality via CSS style
-        // https://developer.mozilla.org/en/docs/Web/CSS/image-rendering
-        // Possible values: auto, crisp-edges, pixelated
-        if (this.model.get('pixelated')) {
-            this.canvas.style.imageRendering = 'pixelated'
-        } else {
-            this.canvas.style.imageRendering = 'auto'
-        }
     },
 
     update_data: function() {
         // https://developer.mozilla.org/en-US/docs/Web/API/Blob
-        var options = {'type': this.model.get('_type')};
+        var options = {'type': this.model.get('_mime_type')}
         var blob = new Blob([this.model.get('_data_compressed')], options);
 
         var promise = createImageBitmap(blob);
@@ -242,21 +235,83 @@ var CanvasView = widgets.DOMWidgetView.extend({
 
     draw: function(image) {
         // Draw image to the canvas
-        this.canvas.width = image.width;
-        this.canvas.height = image.height;
+        this.canvas.width = image.width    // canvas size changes must be done prior to
+        this.canvas.height = image.height  //  drawImage else the canvas is automatically erased
+
+        this.update_css();
 
         this.ctx.drawImage(image, 0, 0);
     },
 
+    check_pixelated: function() {
+        // Image rendering quality via CSS style
+        // auto: render pixelated if display size is greater than image size by a factor of 1.5 or more
+        if (this.model.get('allow_pixelated')) {
+            // pixelated rendering is allowed
+            var thresh = 1.5
+            if (this.model.get('_width') / this.canvas.width >= thresh) {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            // pixelated rendering is disabled
+            return false
+        }
+    },
+
+    update_css: function() {
+        // Update CSS display width and height.  No need to redraw canvas.
+        // This function should be called prior to drawing so that any styles are in place
+        // when the draw function is called.
+        var width = this.model.get('_width');
+        var AR = this.model.get('_AR');
+
+        // Enforce notebook cell-width constraint
+        var cell_width = notebook_cell_width(this.canvas);
+        if (cell_width != null && width > cell_width) {
+            width = cell_width
+            this.model.set('_width', width);
+            this.touch();
+        }
+        var height = Math.round(AR*width);
+
+        // Check and set image-rendering quality
+        if (this.check_pixelated()) {
+            this.canvas.style.imageRendering = 'pixelated'
+        } else {
+            this.canvas.style.imageRendering = 'auto'
+        }
+
+        if (valid_size(width)) {
+            this.canvas.style.width = width + 'px'
+            this.canvas.style.min_width = width + 'px'
+            this.canvas.style.max_width = width + 'px'
+        } else {
+            this.canvas.style.width = null       // do I really need these nulls here??
+            this.canvas.style.min_width = null
+            this.canvas.style.max_width = null
+        }
+        if (valid_size(height)) {
+            this.canvas.style.height = height + 'px'
+            this.canvas.style.min_height = height + 'px'
+            this.canvas.style.max_height = height + 'px'
+        } else {
+            this.canvas.style.height = null       // do I really need these nulls here??
+            this.canvas.style.min_height = null
+            this.canvas.style.max_height = null
+        }
+    },
+
+    //------------------------------------------
     handle_mouse_event: function(ev) {
         // General mouse-event handler
         if (this.model.get('_events_active')) {
+            // Only deal with mouse events when flag is enabled
 
-            var pev = {'type': ev.type};
-
-            var fields = ['shiftKey', 'altKey', 'ctrlKey', 'timeStamp', 'buttons', 'button']
             // movementX, movementY
-
+            var fields = ['shiftKey', 'altKey', 'ctrlKey', 'timeStamp', 'buttons', 'button']
+            var pev = {'type': ev.type};
             for (let f of fields) {
                 pev[f] = ev[f]
             }
@@ -269,7 +324,7 @@ var CanvasView = widgets.DOMWidgetView.extend({
             var X = (ev.clientX - rect.left) / (rect.right  - rect.left);
             var Y = (ev.clientY - rect.top)  / (rect.bottom - rect.top);
 
-            // Canvas data coordinates
+            // Data pixel coordinates
             pev.canvasX = Math.floor(X*this.canvas.width);
             pev.canvasY = Math.floor(Y*this.canvas.height);
 
@@ -287,7 +342,6 @@ var CanvasView = widgets.DOMWidgetView.extend({
             this.touch();
         }
     }
-
 });
 
 module.exports = {

@@ -28,6 +28,8 @@ class Canvas(ipywidgets.DOMWidget):
     _event = traitlets.Dict(help='Canvas-generated event information').tag(sync=True)
     _events_active = traitlets.Bool(False, help='Indicate if canvas events are actively captured').tag(sync=True)
 
+    allow_pixelated = traitlets.Bool(True, help='Allow pixelated rendering when zoomed in').tag(sync=True)
+
     def __init__(self, data=None, url=None, format='png', quality=70):
         """Instantiate a new Canvas Image Widget
 
