@@ -1,9 +1,4 @@
-image_attendant
-ipython
-ipywidgets
-jupyter
-notebook
+image-attendant
 numpy
 ordered-namespace
-pillow
 requests

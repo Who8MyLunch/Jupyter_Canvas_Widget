@@ -2,7 +2,7 @@
 
 **This is very much a work in progress!**
 
-There already exists a Jupyter Image Widget ([ipywidgets](https://github.com/jupyter-widgets/ipywidgets)),
+There already exists a Jupyter Image Widget ([ipywidgets](https://github.com/jupyter-widgets/ipywidgets/blob/master/ipywidgets/widgets/widget_image.py)),
 so why make another one?  That widget takes care of the tricky work involving transfering compressed
 image data from the backend to the frontend.  But it leaves it to the user to handle converting an
 array of image data into a sequence of compressed image bytes.  It also doesn't readily support
@@ -14,15 +14,19 @@ passes them along to the Python backend.  This makes it very easy for the user t
 interactive Notebook applications that can respond to mouse motion, click, and wheel events via
 Python callback functions.
 
+## Useful Links
+
+- https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Custom.html
+- https://github.com/jupyter-widgets/widget-cookiecutter
+
 
 ## Features
 
-- Accept image data from either Numpy arrays or URLs.  User does not have to think about compression
-  methods and details
-- Widget properties `width` and `height` allow for direct manipulation displayed image size while
+- Accept image data from either Numpy arrays or URLs.  User doesn't have to think about compression details
+- Widget properties `width` and `height` allow for directly manipulating displayed image size while
   maintaining original aspect ratio
 - Support Python callback functions for canvas-generated mouse events
-- Leverage Jupyter ipywidgets native support for efficiently transfering binary data from backend to
+- Leverage Jupyter ipywidgets' native support for efficiently transfering binary data from backend to
   frontend, e.g. [7.0 change log](https://github.com/jupyter-widgets/ipywidgets/blob/master/docs/source/changelog.md#70),
   [#1643](https://github.com/jupyter-widgets/ipywidgets/pull/1643),
   [#1595](https://github.com/jupyter-widgets/ipywidgets/pull/1595), and
@@ -37,14 +41,12 @@ Python callback functions.
 # Work-in-Progress
 
 - Consider capturing keyboard events when the canvas has focus
-- Update readme contents
 - Verify static HTML embed functionality
 - Include URL example
 - Consider using ordered namespace objects for storing widget event information
     - This requires ensuring all emitted events contain identical fields, else too much potential
       for stale information.
-- Consider setting up poor man's video player example.  Video frames from where?  I'll take a
-  sequence of photos with my phone!  Perhaps different view angles of a nice flower.
+- Consider setting up poor man's video player example.
 - Research how to maintain CSS width/height sizes, even when embedded in another container. Might
   be a simple style setting?
 
